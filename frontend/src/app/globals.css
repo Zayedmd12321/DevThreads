@@ -1,26 +1,105 @@
+/* globals.css */
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* New Professional Palette */
+:root{
+  --bg: 248 250 252;
+  --surface: 255 255 255;
+  --border: 226 232 240;
+  --text: 30 41 59;
+  --muted-text: 100 116 139;
+  --accent: 79 70 229;
+  --radius: 0.75rem;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark{
+  --bg: 15 23 42;
+  --surface: 30 41 59;
+  --border: 51 65 85;
+  --text: 226 232 240;
+  --muted-text: 148 163 184;
+  --accent: 99 102 241;
+  --radius: 0.75rem;
+  --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,body {
+  height:100%;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Redesigned Card */
+.card {
+  background-color: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Refined Inputs */
+textarea, input, select {
+  color: rgb(var(--text));
+  background-color: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: rgb(var(--accent));
+  box-shadow: 0 0 0 3px rgba(var(--accent), 0.15);
+}
+textarea:hover, input:hover, select:hover {
+  border-color: rgba(var(--accent), 0.5);
+}
+
+::placeholder { color: rgb(var(--muted-text)); opacity: 0.8; }
+
+/* Professional Buttons */
+.btn-accent {
+  background-color: rgb(var(--accent));
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+.btn-accent:hover {
+  background-color: rgba(var(--accent), 0.9);
+}
+.btn-accent:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Helper classes */
+.text-muted {
+  color: rgb(var(--muted-text));
+}
+
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--border));
+  border-radius: 999px;
+  border: 2px solid rgb(var(--bg));
+  transition: background-color 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--accent));
 }
