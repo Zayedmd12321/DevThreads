@@ -1,15 +1,15 @@
-// components/Comment.tsx
 "use client";
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { formatDistanceToNowStrict } from "date-fns";
 import { ArrowBigUp, MessageSquare, Trash2, CornerDownRight } from "lucide-react";
+import NewCommentForm from "./NewCommentForm"; // We'll render the form directly
 
 interface CommentProps {
   comment: any;
   users: any[];
-  userId: string;
+  currentUser: any;
   onAddReply: (parentId: number, text: string) => void;
   onDelete: (id: number) => void;
   onUpvote: (commentId: number, hasUpvoted: boolean) => void;
@@ -19,215 +19,133 @@ interface CommentProps {
 export default function Comment({
   comment,
   users,
-  userId,
+  currentUser,
   onAddReply,
   onDelete,
   onUpvote,
   depth = 0,
 }: CommentProps) {
-  const user = useMemo(
-    () => users.find((u) => u.id === comment.user_id),
-    [users, comment.user_id]
-  );
-  const currentUser = useMemo(
-    () => users.find((u) => u.email === userId),
-    [users, userId]
-  );
-
-  const [showReplies, setShowReplies] = useState(true);
-  const [replying, setReplying] = useState(false);
+  const author = useMemo(() => users.find((u) => u.id === comment.user_id), [users, comment.user_id]);
+  
+  const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [showReplies, setShowReplies] = useState(true);
   const [isUpvoted, setIsUpvoted] = useState(false);
 
   const timeAgo = useMemo(() => {
     try {
-      return formatDistanceToNowStrict(new Date(comment.created_at), {
-        addSuffix: true,
-      });
-    } catch {
-      return "just now";
-    }
+      return formatDistanceToNowStrict(new Date(comment.created_at), { addSuffix: true });
+    } catch { return "just now"; }
   }, [comment.created_at]);
 
-  const isAuthor = userId === user?.email;
-  const isAdmin = userId === "admin";
-  const replies = Array.isArray(comment.replies) ? comment.replies : [];
-  const totalReplies = replies.length;
+  const isAuthor = currentUser?.id === comment.user_id;
+  const canDelete = isAuthor || (currentUser && currentUser.isAdmin);
 
-  const handleReply = () => {
+  const handleReplySubmit = () => {
     if (!replyText.trim() || !currentUser) return;
     onAddReply(comment.id, replyText.trim());
     setReplyText("");
-    setReplying(false);
+    setIsReplying(false);
     setShowReplies(true);
   };
 
   const handleUpvoteClick = () => {
     onUpvote(comment.id, isUpvoted);
-    setIsUpvoted((s) => !s);
+    setIsUpvoted((prev) => !prev);
   };
 
+  const replies = comment.replies || [];
+  const totalReplies = replies.length;
+  
+  // --- ADAPTIVE PADDING ---
+  // We use a subtle indent that maxes out to save space
+  const paddingLeft = depth > 0 ? `pl-4 sm:pl-6` : '';
+
   return (
-    <div className="relative flex gap-2 sm:gap-3 w-full">
-      {/* Avatar */}
-      <div className="flex-shrink-0 z-10">
+    <div className={`relative ${paddingLeft}`}>
+      {/* --- THREAD LINE --- */}
+      {/* This vertical line connects a reply to its parent */}
+      {depth > 0 && <div className="absolute left-0 top-0 h-full w-0.5 bg-[rgba(var(--border),0.5)] -translate-x-4 sm:-translate-x-5"></div>}
+      
+      <div className="relative flex gap-3 sm:gap-4">
         <Image
-          src={user?.avatar || "https://i.pravatar.cc/150"}
-          alt={user?.name || "User"}
-          width={depth > 0 ? 32 : 40}
-          height={depth > 0 ? 32 : 40}
-          className={`rounded-full ${depth > 0 ? "w-8 h-8 mt-1" : "w-10 h-10"}`}
+          src={author?.avatar || "https://i.pravatar.cc/150"}
+          alt={author?.name || "User"}
+          width={40}
+          height={40}
+          // The z-10 ensures the avatar sits on top of the thread line
+          className="relative z-10 rounded-full h-8 w-8 sm:h-10 sm:w-10 mt-1 flex-shrink-0"
         />
-      </div>
-
-      {/* Body */}
-      <div className="flex-1 min-w-0">
-        <div className="card p-3 sm:p-4 border-l-2 border-transparent hover:border-[rgba(var(--accent),0.2)] w-full">
-          {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-            {/* Name + Time */}
-            <div
-              className={`flex flex-col ${
-                depth > 3 ? "items-start gap-0.5" : "sm:flex-row sm:items-center sm:gap-2"
-              }`}
-            >
-              <span className="font-semibold text-sm text-[rgb(var(--text))]">
-                {user?.name || "Unknown"}
-              </span>
-              <span
-                className={`text-xs text-muted ${
-                  depth > 3 ? "block sm:inline" : "inline"
-                }`}
-              >
-                 • {timeAgo}
-              </span>
+        <div className="flex-1 min-w-0">
+          <div className="card p-3 sm:p-4 w-full">
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-semibold text-sm text-[rgb(var(--text))] truncate">
+                  {author?.name || "Unknown"}
+                </span>
+                <span className="text-xs text-muted flex-shrink-0">• {timeAgo}</span>
+              </div>
+              {canDelete && (
+                <button onClick={() => confirm("Delete this comment?") && onDelete(comment.id)} className="hidden sm:flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 p-1 rounded-md">
+                  <Trash2 size={14} /> <span className="hidden md:inline">Delete</span>
+                </button>
+              )}
             </div>
-
-            {/* Delete (desktop only) */}
-            {(isAdmin || isAuthor) && (
-              <button
-                onClick={() =>
-                  confirm("Delete this comment?") && onDelete(comment.id)
-                }
-                className="hidden sm:flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors duration-200 px-2 py-1 rounded-md"
-              >
-                <Trash2 size={14} />
-                <span>Delete</span>
+            <p className="mt-2 text-sm leading-relaxed break-words">{comment.text}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-1 sm:gap-2">
+              <button onClick={handleUpvoteClick} className={`flex items-center gap-1 text-sm font-semibold p-1 rounded-md transition-colors ${ isUpvoted ? "text-[rgb(var(--accent))]" : "text-muted hover:text-[rgb(var(--text))] hover:bg-[rgba(var(--border),0.5)]"}`}>
+                <ArrowBigUp size={18} className={isUpvoted ? "fill-current" : ""} />
+                {comment.upvotes}
               </button>
-            )}
+              <button onClick={() => setIsReplying((prev) => !prev)} className="flex items-center gap-1 text-xs font-semibold text-muted p-1 rounded-md hover:text-[rgb(var(--accent))] hover:bg-[rgba(var(--border),0.5)] transition-colors">
+                <MessageSquare size={14} />
+                {isReplying ? "Cancel" : "Reply"}
+              </button>
+              {canDelete && (
+                <button onClick={() => confirm("Delete this comment?") && onDelete(comment.id)} className="flex sm:hidden items-center gap-1 text-xs font-semibold text-red-500 p-1 rounded-md">
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Text */}
-          <p className="mt-2 text-sm leading-relaxed break-words">{comment.text}</p>
+          <div className="mt-4 space-y-4">
+            {isReplying && (
+               <NewCommentForm 
+                  currentUser={currentUser}
+                  newCommentText={replyText}
+                  setNewCommentText={setReplyText}
+                  onSubmit={handleReplySubmit}
+                  isReply={true}
+                />
+            )}
 
-          {/* --- Actions Row --- */}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {/* Upvote */}
-            <button
-              onClick={handleUpvoteClick}
-              className={`flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 px-2 py-1 rounded-md ${
-                isUpvoted
-                  ? "text-[rgb(var(--accent))]"
-                  : "text-muted hover:text-[rgb(var(--text))] hover:bg-[rgba(var(--border),0.5)]"
-              }`}
-            >
-              <ArrowBigUp
-                size={18}
-                className={isUpvoted ? "fill-[rgb(var(--accent))]" : ""}
-              />
-              {comment.upvotes}
-            </button>
-
-            {/* Reply */}
-            <button
-              onClick={() => setReplying((r) => !r)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-[rgb(var(--accent))] hover:bg-[rgba(var(--border),0.5)] transition-colors duration-200 px-2 py-1 rounded-md"
-            >
-              <MessageSquare size={14} />
-              {replying ? "Cancel" : "Reply"}
-            </button>
-
-            {/* Delete (mobile only) */}
-            {(isAdmin || isAuthor) && (
-              <button
-                onClick={() =>
-                  confirm("Delete this comment?") && onDelete(comment.id)
-                }
-                className="flex sm:hidden items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors duration-200 px-2 py-1 rounded-md"
-              >
-                <Trash2 size={14} />
-                Delete
-              </button>
+            {totalReplies > 0 && (
+              <div>
+                <button onClick={() => setShowReplies((s) => !s)} className="flex items-center gap-2 text-xs font-semibold text-muted hover:text-[rgb(var(--accent))] mb-3">
+                  <CornerDownRight size={14} />
+                  {showReplies ? `Hide ${totalReplies} repl${totalReplies > 1 ? "ies" : "y"}` : `View ${totalReplies} repl${totalReplies > 1 ? "ies" : "y"}`}
+                </button>
+                {showReplies && (
+                  <div className="space-y-4">
+                      {replies.map((r: any) => (
+                        <Comment
+                          key={r.id}
+                          comment={r}
+                          users={users}
+                          currentUser={currentUser}
+                          onAddReply={onAddReply}
+                          onDelete={onDelete}
+                          onUpvote={onUpvote}
+                          depth={depth + 1}
+                        />
+                      ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
-
-        {/* Reply box */}
-        {replying && (
-          <div className="mt-3 flex items-start gap-2 sm:gap-3">
-            <Image
-              src={currentUser?.avatar || "https://i.pravatar.cc/150"}
-              alt="You"
-              width={32}
-              height={32}
-              className="rounded-full mt-1 flex-shrink-0 h-8 w-8"
-            />
-            <div className="flex-1">
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Write a reply..."
-                rows={2}
-                className="w-full resize-none text-sm"
-              />
-              <div className="mt-2 flex justify-end">
-                <button
-                  onClick={handleReply}
-                  disabled={!replyText.trim()}
-                  className="rounded-md btn-accent px-4 py-1.5 text-xs"
-                >
-                  Post Reply
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Replies */}
-        {totalReplies > 0 && (
-          <div className="mt-4">
-            <button
-              onClick={() => setShowReplies((s) => !s)}
-              className="flex items-center gap-2 text-xs font-semibold text-muted hover:text-[rgb(var(--accent))] mb-3"
-            >
-              <CornerDownRight size={14} />
-              {showReplies
-                ? `Hide ${totalReplies} repl${
-                    totalReplies > 1 ? "ies" : "y"
-                  }`
-                : `View ${totalReplies} repl${
-                    totalReplies > 1 ? "ies" : "y"
-                  }`}
-            </button>
-
-            {showReplies && (
-              <div className="space-y-4">
-                {replies.map((r: any) => (
-                  <Comment
-                    key={r.id}
-                    comment={r}
-                    users={users}
-                    userId={userId}
-                    onAddReply={onAddReply}
-                    onDelete={onDelete}
-                    onUpvote={onUpvote}
-                    depth={depth + 1}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

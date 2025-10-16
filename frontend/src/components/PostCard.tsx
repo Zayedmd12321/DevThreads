@@ -1,4 +1,3 @@
-// components/PostCard.tsx
 import Image from "next/image";
 import { Flame, ThumbsUp, MessageSquare, Share2 } from "lucide-react";
 

@@ -103,3 +103,14 @@ textarea:hover, input:hover, select:hover {
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(var(--accent));
 }
+
+.thread-line::before {
+  content: '';
+  position: absolute;
+  left: 19px; /* Adjust to center on the avatar */
+  top: 48px;  /* Start below the avatar */
+  bottom: 0;
+  width: 2px;
+  background-color: rgba(var(--border));
+  opacity: 0.8;
+}

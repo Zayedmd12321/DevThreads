@@ -12,6 +12,7 @@ interface CommentsSectionProps {
   onAddReply: (parentId: number, text: string) => void;
   onDelete: (id: number) => void;
   onUpvote: (commentId: number, hasUpvoted: boolean) => void;
+  currentUser: any;
 }
 
 export default function CommentsSection({
@@ -23,7 +24,8 @@ export default function CommentsSection({
   userId,
   onAddReply,
   onDelete,
-  onUpvote
+  onUpvote,
+  currentUser
 }: CommentsSectionProps) {
   return (
     <div className="card p-5">
@@ -49,7 +51,7 @@ export default function CommentsSection({
             key={c.id} 
             comment={c} 
             users={users} 
-            userId={userId} 
+            currentUser={currentUser}
             onAddReply={onAddReply} 
             onDelete={onDelete} 
             onUpvote={onUpvote} 

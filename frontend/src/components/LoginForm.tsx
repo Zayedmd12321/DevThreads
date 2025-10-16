@@ -3,17 +3,45 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API_BASE_URL = 'http://10.145.228.129:8000/api';
+
 export default function LoginForm() {
   const [id, setId] = useState("");
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id.trim()) return;
-    
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("userId", id);
-    router.push("/");
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Call the new authentication endpoint
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }), // Send just the user ID
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+
+      // On successful login, save user info and token to local storage
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      localStorage.setItem('userId', data.id);
+      localStorage.setItem('loggedIn', 'true');
+
+      router.push('/');
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -26,19 +54,22 @@ export default function LoginForm() {
           <input
             id="userId"
             type="text"
-            placeholder="Enter your user ID (e.g., 'rohit.shah')"
+            placeholder="e.g., rohit.shah or anita.p."
             value={id}
             onChange={(e) => setId(e.target.value)}
-            className="w-full bg-[rgb(var(--surface))] border border-[rgb(var(--border))] rounded-lg px-4 py-3 text-[rgb(var(--text))] placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[rgb(var(--bg))] focus:ring-[rgb(var(--accent))] transition-shadow"
+            className="w-full"
+            required
           />
         </div>
-        
+
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
         <button
           type="submit"
-          disabled={!id.trim()}
-          className="w-full btn-accent rounded-lg py-3 text-sm font-bold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading || !id.trim()}
+          className="w-full btn-accent rounded-lg py-3 text-sm font-bold transition-opacity"
         >
-          Login
+          {isLoading ? 'Logging In...' : 'Login'}
         </button>
       </form>
     </div>
