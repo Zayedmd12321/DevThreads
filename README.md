@@ -137,7 +137,6 @@ This will spin up both backend and frontend containers.
 
 | Method | Endpoint | Description |
 |:--------|:----------|:-------------|
-| `POST` | `/api/auth/register` | Register new user |
 | `POST` | `/api/auth/login` | Login user |
 | `GET` | `/api/comments` | Fetch all comments |
 | `POST` | `/api/comments` | Add new comment |
