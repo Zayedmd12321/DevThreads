@@ -9,7 +9,7 @@ import {
   Trash2,
   CornerDownRight,
 } from "lucide-react";
-import NewCommentForm from "./NewCommentForm";
+import NewCommentForm from "./NewCommentForm"; // Make sure this component is updated as per our previous chat
 
 const DESKTOP_DEPTH_LIMIT = 5;
 const MOBILE_DEPTH_LIMIT = 2;
@@ -43,10 +43,14 @@ export default function Comment({
   );
 
   const [isReplying, setIsReplying] = useState(false);
-  const [replyText, setReplyText] = useState("");
+  // REMOVED: const [replyText, setReplyText] = useState("");
   const [showReplies, setShowReplies] = useState(true);
-  const [isUpvoted, setIsUpvoted] = useState(comment.hasUpvoted || false);
+  // REMOVED: const [isUpvoted, setIsUpvoted] = useState(comment.hasUpvoted || false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // --- DERIVED STATE: Read directly from props ---
+  // This is now the single source of truth.
+  const isUpvoted = comment.hasUpvoted || false;
 
   useEffect(() => {
     const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
@@ -68,18 +72,21 @@ export default function Comment({
   const isAuthor = currentUser?.id === comment.user_id;
   const canDelete = isAuthor || (currentUser && currentUser.isAdmin);
 
-  const handleReplySubmit = () => {
-    if (!replyText.trim() || !currentUser) return;
-    onAddReply(comment.id, replyText.trim());
-    setReplyText("");
+  // UPDATED: This handler now receives the text from the (fixed) NewCommentForm
+  const handleReplySubmit = (text: string) => {
+    if (!text.trim() || !currentUser) return;
+    onAddReply(comment.id, text.trim());
+    // setReplyText(""); // No longer needed
     setIsReplying(false);
     setShowReplies(true);
   };
 
+  // UPDATED: This handler ONLY tells the parent what happened.
+  // It does not set any local state.
   const handleUpvoteClick = () => {
     onUpvote(comment.id, isUpvoted);
-    comment.upvotes += 1;
-    setIsUpvoted((prev: any) => !prev);
+    // REMOVED: comment.upvotes += 1; (This was a prop mutation bug)
+    // REMOVED: setIsUpvoted((prev: any) => !prev);
   };
 
   const replies = comment.replies || [];
@@ -107,7 +114,7 @@ export default function Comment({
 
   return (
     <div className="relative">
-      {/* 🧵 Thread connector from parent through avatar */}
+      {/* ... Thread connector ... */}
       {replies?.length > 0 && (
         <div
           className={`
@@ -139,6 +146,7 @@ export default function Comment({
 
         <div className="flex-1 min-w-0">
           <div className="card p-3 sm:p-4 w-full">
+            {/* ... Card header ... */}
             <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="font-semibold text-sm text-[rgb(var(--text))] truncate">
@@ -165,11 +173,12 @@ export default function Comment({
               {comment.text}
             </p>
 
+            {/* ... Card actions ... */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-2">
               <button
                 onClick={handleUpvoteClick}
                 className={`flex items-center gap-[1px] text-sm font-semibold p-1 rounded-md transition-colors cursor-pointer actionbtn ${
-                  isUpvoted
+                  isUpvoted // Now reads directly from the prop
                     ? "text-[rgb(var(--accent))] actionbtn2"
                     : "text-muted"
                 }`}
@@ -180,8 +189,8 @@ export default function Comment({
                 />
                 {comment.upvotes}
               </button>
-
-              <button
+              {/* ... other buttons ... */}
+               <button
                 onClick={() => setIsReplying((prev) => !prev)}
                 className="flex items-center gap-1 text-xs font-semibold text-muted p-1 rounded-md cursor-pointer actionbtn"
               >
@@ -206,14 +215,14 @@ export default function Comment({
             {isReplying && (
               <NewCommentForm
                 currentUser={currentUser}
-                newCommentText={replyText}
-                setNewCommentText={setReplyText}
-                onSubmit={handleReplySubmit}
+                // REMOVED: newCommentText={replyText}
+                // REMOVED: setNewCommentText={setReplyText}
+                onSubmit={handleReplySubmit} // UPDATED
                 isReply={true}
               />
             )}
 
-            {/* --- Replies --- */}
+            {/* ... Replies logic (unchanged) ... */}
             {totalReplies > 0 &&
               (() => {
                 if (isFocusedThread) {
@@ -223,7 +232,7 @@ export default function Comment({
                     return (
                       <button
                         onClick={() => onViewThread(comment.id)}
-                        className="flex items-center gap-2 text-xs font-semibold text-muted hover:text-[rgb(var(--accent))] mt-3 cursor-pointer p-1 rounded-md hover:bg-[rgba(var(--border),0.3)] transition-colors"
+                        className="flex items-center gap-2 text-xs font-semibold text-muted hover:text-[rgb(var(--accent))] mt-3 cursor-pointer p-1 rounded-md actionbtn"
                       >
                         <CornerDownRight size={14} />
                         {`View full thread (${totalReplies} repl${

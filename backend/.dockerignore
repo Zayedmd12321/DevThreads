@@ -1,0 +1,12 @@
+# Ignore node_modules, as they will be installed inside the container
+node_modules
+
+# Ignore npm debug logs
+npm-debug.log
+
+# Ignore environment variables file, these should be passed in at runtime
+.env
+
+# Ignore Docker related files
+Dockerfile
+.dockerignore

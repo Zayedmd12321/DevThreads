@@ -17,11 +17,10 @@ export default function LoginForm() {
     setError('');
 
     try {
-      // Call the new authentication endpoint
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }), // Send just the user ID
+        body: JSON.stringify({ id }),
       });
 
       const data = await res.json();
@@ -29,8 +28,6 @@ export default function LoginForm() {
       if (!res.ok) {
         throw new Error(data.message || 'Something went wrong');
       }
-
-      // On successful login, save user info and token to local storage
       localStorage.setItem('userInfo', JSON.stringify(data));
       localStorage.setItem('userId', data.id);
       localStorage.setItem('loggedIn', 'true');

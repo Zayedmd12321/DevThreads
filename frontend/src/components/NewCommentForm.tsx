@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useState } from "react";
 
 interface CurrentUser {
   id: string;
@@ -8,16 +9,12 @@ interface CurrentUser {
 
 interface NewCommentFormProps {
   currentUser: CurrentUser | null;
-  newCommentText: string;
-  setNewCommentText: (text: string) => void;
-  onSubmit: () => void;
-  isReply?: boolean; // New optional prop to indicate if this is a reply
+  onSubmit: (text: string) => void;
+  isReply?: boolean;
 }
 
 export default function NewCommentForm({ 
   currentUser, 
-  newCommentText, 
-  setNewCommentText, 
   onSubmit, 
   isReply = false 
 }: NewCommentFormProps) {
@@ -25,7 +22,16 @@ export default function NewCommentForm({
   // The form is more compact when used as a reply
   const placeholder = isReply ? "Write a reply..." : `Share your thoughts, ${currentUser?.name || "User"}...`;
   const buttonText = isReply ? "Post Reply" : "Post Comment";
+  const [newCommentText, setNewCommentText] = useState("");
   const rows = isReply ? 2 : 3;
+
+  const handleSubmit = () => {
+    const trimmedText = newCommentText.trim();
+    if (trimmedText) {
+      onSubmit(trimmedText);
+      setNewCommentText("");
+    }
+  };
 
   const formContent = (
     <div className="flex items-start gap-3 sm:gap-4">
@@ -49,7 +55,7 @@ export default function NewCommentForm({
         />
         <div className="mt-2 flex justify-end">
           <button 
-            onClick={onSubmit} 
+            onClick={handleSubmit} 
             disabled={!newCommentText.trim()} 
             className={`rounded-md btn-accent text-sm ${isReply ? 'px-4 py-1.5 text-xs' : 'px-5 py-2'}`}
           >

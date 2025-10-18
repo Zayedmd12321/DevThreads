@@ -38,7 +38,7 @@ export default function Navbar({ currentUser, onLogout, loading }: NavbarProps) 
             <div className="flex items-center gap-2 sm:gap-4">
               {currentUser ? (
                 <>
-                  <div className="hidden md:block text-sm text-muted px-3 py-1.5 rounded-md bg-[rgba(var(--border),0.5)]">{currentUser.id}</div>
+                  <div className="hidden md:block text-sm text-muted px-3 py-1.5 rounded-md bg-[rgba(var(--border),0.5)]">{currentUser.name}</div>
                   <Image
                     src={currentUser.avatar}
                     alt={currentUser.name || "User Avatar"}

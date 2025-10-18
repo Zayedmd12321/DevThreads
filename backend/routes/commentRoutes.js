@@ -9,7 +9,7 @@ const {
 } = require('../controllers/commentController');
 const protect = require('../middlewares/authMiddleware');
 
-router.get('/', getComments);
+router.get('/',protect, getComments);
 router.post('/', protect, createComment);
 router.delete('/:id', protect, deleteComment);
 router.put('/:id/upvote', protect, upvoteComment);

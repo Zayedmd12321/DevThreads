@@ -1,15 +1,42 @@
 const Comment = require('../models/commentModel');
+const User = require('../models/userModel')
 const buildCommentTree = require('../utils/buildCommentTree');
+
+// In commentController.js
 
 const getComments = async (req, res) => {
   try {
+    console.log("--- getComments Step 1: Reading user ---");
+    let userLikes = new Set();
+    if (req.user && req.user.likes) {
+        userLikes = new Set(req.user.likes);
+    }
+    console.log("--- getComments Step 2: Fetching comments from DB ---");
     const comments = await Comment.find({}).sort({ createdAt: -1 });
-    const commentTree = buildCommentTree(comments);
+
+    console.log(`--- getComments Step 3: Mapping ${comments.length} comments ---`);
+    const commentsWithUserStatus = comments.map(comment => {
+        const plainComment = comment.toObject(); 
+        return {
+            ...plainComment,
+            hasUpvoted: userLikes.has(plainComment.id)
+        };
+    });
+
+    console.log("--- getComments Step 4: Building comment tree ---");
+    const commentTree = buildCommentTree(commentsWithUserStatus);
+
+    console.log("--- getComments Step 5: Sending JSON response ---");
     res.json(commentTree);
+
   } catch (error) {
+    // This will now print the exact error to your server console
+    console.error('!!! ERROR IN getComments:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
+
+// In commentController.js
 
 const createComment = async (req, res) => {
   const { text, user_id, parent_id } = req.body;
@@ -26,10 +53,17 @@ const createComment = async (req, res) => {
       text,
       user_id,
       parent_id: parent_id || null,
+      upvotes: 0, // <-- ADD THIS
+      // 'created_at' will be added by timestamps, but let's return it clean
     });
-    
+
     const savedComment = await newComment.save();
-    res.status(201).json(savedComment);
+    
+    // Also add hasUpvoted: false for the new comment
+    const plainComment = savedComment.toObject();
+    
+    res.status(201).json({ ...plainComment, hasUpvoted: false }); // <-- RETURN A CLEAN OBJECT
+
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });
   }
@@ -48,11 +82,11 @@ const deleteComment = async (req, res) => {
       res.status(401);
       throw new Error('User not authorized to delete this comment');
     }
-    
+
     const idsToDelete = [commentId];
     const queue = [commentId];
-    
-    while(queue.length > 0) {
+
+    while (queue.length > 0) {
       const parentId = queue.shift();
       const replies = await Comment.find({ parent_id: parentId });
       for (const reply of replies) {
@@ -68,13 +102,17 @@ const deleteComment = async (req, res) => {
   }
 };
 
+// In commentController.js
+
 const upvoteComment = async (req, res) => {
     try {
         const commentId = Number(req.params.id);
-        const { hasUpvoted } = req.body;
+        const { hasUpvoted } = req.body; 
+        
+        // --- Step 1: Update Comment (This was already correct) ---
         const updateOperation = hasUpvoted 
             ? { $inc: { upvotes: -1 } }
-            : { $inc: { upvotes: 1 } };
+            : { $inc: { upvotes: 1 } }; 
 
         const updatedComment = await Comment.findOneAndUpdate(
             { id: commentId },
@@ -85,8 +123,24 @@ const upvoteComment = async (req, res) => {
         if (!updatedComment) {
             return res.status(404).json({ message: 'Comment not found' });
         }
+
+        // --- Step 2: Update User's 'likes' array ---
+        const userUpdateOperation = hasUpvoted
+            ? { $pull: { likes: commentId } } 
+            : { $addToSet: { likes: commentId } };
+        
+        // --- THIS IS THE FIX ---
+        // We use findOneAndUpdate and query using the custom 'id' field,
+        // which matches req.user.id (e.g., 'admin')
+        await User.findOneAndUpdate(
+            { id: req.user.id }, // Find user by { id: 'admin' }
+            userUpdateOperation
+        );
+        // --- END FIX ---
+
         res.json(updatedComment);
     } catch (error) {
+        console.error('Error in upvoteComment:', error);
         res.status(500).json({ message: 'Server Error', error });
     }
 };
