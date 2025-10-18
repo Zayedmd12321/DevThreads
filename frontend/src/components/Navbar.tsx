@@ -4,16 +4,10 @@
 import { useTheme } from "@/hooks/useTheme";
 import { LogOut, Sun, Moon, Code2 } from "lucide-react";
 import Image from "next/image";
-
-// Define a type for the user object for better type safety
-interface CurrentUser {
-  id: number;
-  name: string;
-  avatar: string;
-}
+import { User } from "@/types";
 
 interface NavbarProps {
-  currentUser: CurrentUser | null;
+  currentUser: User | null;
   onLogout: () => void;
   loading: boolean;
 }

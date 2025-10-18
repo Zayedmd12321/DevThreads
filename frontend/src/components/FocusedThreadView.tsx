@@ -3,18 +3,19 @@
 import { useState, useEffect, useMemo } from "react";
 import Comment from "@/components/Comment";
 import { ArrowLeft } from "lucide-react";
+import { CommentType, User } from "@/types/index";
 
 interface FocusedThreadViewProps {
-  parentComment: any;
-  users: any[];
-  currentUser: any;
+  parentComment: CommentType;
+  users: User[];
+  currentUser: User|null;
   onBack: () => void;
   onAddReply: (parentId: number | null, text: string) => void;
   onDelete: (id: number) => void;
   onUpvote: (commentId: number, hasUpvoted: boolean) => void;
 }
 
-function findCommentById(comment: any, id: number): any | null {
+function findCommentById(comment: CommentType, id: number): CommentType | null {
   if (comment.id === id) return comment;
   for (const reply of comment.replies || []) {
     const found = findCommentById(reply, id);
@@ -33,7 +34,7 @@ export default function FocusedThreadView({
   onUpvote,
 }: FocusedThreadViewProps) {
   const [localFocusedComment, setLocalFocusedComment] = useState(parentComment);
-  const [historyStack, setHistoryStack] = useState<any[]>([]);
+  const [historyStack, setHistoryStack] = useState<CommentType[]>([]);
 
   const author = useMemo(
     () => users.find((u) => u.id === parentComment.user_id),

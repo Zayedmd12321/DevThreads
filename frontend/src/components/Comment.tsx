@@ -10,14 +10,15 @@ import {
   CornerDownRight,
 } from "lucide-react";
 import NewCommentForm from "./NewCommentForm"; // Make sure this component is updated as per our previous chat
+import { CommentType, User } from "@/types/index";
 
 const DESKTOP_DEPTH_LIMIT = 5;
 const MOBILE_DEPTH_LIMIT = 2;
 
 interface CommentProps {
-  comment: any;
-  users: any[];
-  currentUser: any;
+  comment: CommentType;
+  users: User[];
+  currentUser: User|null;
   onAddReply: (parentId: number | null, text: string) => void;
   onDelete: (id: number) => void;
   onUpvote: (commentId: number, hasUpvoted: boolean) => void;
@@ -25,6 +26,7 @@ interface CommentProps {
   isFocusedThread?: boolean;
   onViewThread?: (commentId: number) => void;
 }
+
 
 export default function Comment({
   comment,
@@ -95,7 +97,7 @@ export default function Comment({
 
   const renderReplies = (isFocused: boolean) => (
     <div className={`space-y-4 ${isFocused ? "pt-4" : ""}`}>
-      {replies.map((r: any) => (
+      {replies.map((r) => (
         <Comment
           key={r.id}
           comment={r}

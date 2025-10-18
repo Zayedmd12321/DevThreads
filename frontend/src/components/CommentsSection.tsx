@@ -1,18 +1,19 @@
 // components/CommentsSection.tsx
 import Comment from "@/components/Comment";
 import { ChevronDown } from "lucide-react";
+import { CommentType, User } from "@/types/index";
 
 interface CommentsSectionProps {
   totalComments: number;
   sortType: string;
   setSortType: (type: string) => void;
-  comments: any[];
-  users: any[];
-  userId: string;
-  onAddReply: (parentId: number | null, text: string) => void; // Corrected type
+  comments: CommentType[];
+  users: User[];
+  userId: string|undefined;
+  onAddReply: (parentId: number | null, text: string) => void;
   onDelete: (id: number) => void;
   onUpvote: (commentId: number, hasUpvoted: boolean) => void;
-  currentUser: any;
+  currentUser: User|null;
   onViewThread: (commentId: number) => void;
 }
 

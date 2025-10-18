@@ -1,6 +1,8 @@
-export const buildCommentTree = (comments: any[]) => {
-  const map: any = {};
-  const roots: any[] = [];
+import { CommentType } from "@/types";
+
+export const buildCommentTree = (comments: CommentType[]): CommentType[] => {
+  const map: { [key: number]: CommentType } = {};
+  const roots: CommentType[] = [];
 
   // 1. Map all comments by ID and initialize replies array
   comments.forEach((comment) => {

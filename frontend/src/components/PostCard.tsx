@@ -45,7 +45,7 @@ export default function PostCard({ totalComments }: PostCardProps) {
           <div>
             <h1 className="text-lg font-bold">Hot Take: Utility-first CSS is just a messier version of inline styles.</h1>
             <p className="text-sm text-muted mt-1">
-              I've been using Tailwind CSS for this project, and while the development speed is amazing, I can't shake the feeling that my TSX is becoming unreadable. It feels like we're just relearning inline styles with extra steps. Are the benefits of utility classes worth the cost to readability, or is this really the future of styling?<br /><b>Change my mind.</b>
+              I&apos;ve been using Tailwind CSS for this project, and while the development speed is amazing, I can&apos;t shake the feeling that my TSX is becoming unreadable. It feels like we&apos;re just relearning inline styles with extra steps. Are the benefits of utility classes worth the cost to readability, or is this really the future of styling?<br /><b>Change my mind.</b>
             </p>
           </div>
         </div>

@@ -8,14 +8,15 @@ import NewCommentForm from "@/components/NewCommentForm";
 import CommentsSection from "@/components/CommentsSection";
 import FocusedThreadView from "@/components/FocusedThreadView";
 import PageSkeleton from "./skeletons/PageSkeleton";
+import { CommentType, User } from "@/types/index";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const mapComments = (
-  comments: any[],
+  comments: CommentType[],
   commentId: string | number,
-  updateFn: (comment: any) => any,
-): any[] => {
+  updateFn: (comment: CommentType) => CommentType,
+): CommentType[] => {
   return comments.map((comment) => {
     if (comment.id === commentId) {
       return updateFn(comment); // Apply the update
@@ -31,9 +32,9 @@ const mapComments = (
 };
 
 const removeComment = (
-  comments: any[],
+  comments: CommentType[],
   commentId: string | number,
-): any[] => {
+): CommentType[] => {
   return comments
     .filter((comment) => comment.id !== commentId)
     .map((comment) => {
@@ -46,9 +47,9 @@ const removeComment = (
 
 export default function PostPageWrapper() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [comments, setComments] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<User|null>(null);
+  const [comments, setComments] = useState<CommentType[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [sortType, setSortType] = useState("newest");
   const [isLoading, setIsLoading] = useState(true);
   const [focusedCommentId, setFocusedCommentId] = useState<
@@ -122,7 +123,7 @@ export default function PostPageWrapper() {
   const handleAddComment = async (parentId: number | null, text: string) => {
     if (!text.trim() || !currentUser) return;
 
-    const tempId = `temp-${Date.now()}`;
+    const tempId = Date.now();
     const newCommentOptimistic = {
       id: tempId,
       text: text.trim(),
@@ -134,7 +135,7 @@ export default function PostPageWrapper() {
       hasUpvoted: false, // Make sure to add this!
     };
 
-    const addCommentToState = (list: any[], comment: any): any[] => {
+    const addCommentToState = (list: CommentType[], comment: CommentType): CommentType[] => {
       // ... (your helper function is perfect, no change)
       if (comment.parent_id === null) {
         return [comment, ...list];
@@ -176,7 +177,7 @@ export default function PostPageWrapper() {
       const newCommentFromApi = await res.json();
 
       // 5. Replace the temporary comment with the real one
-      const replaceFn = (comment: any) => {
+      const replaceFn = (comment: CommentType) => {
         return comment.id === tempId ? newCommentFromApi : comment;
       };
       setComments((prevComments) =>
@@ -226,7 +227,7 @@ export default function PostPageWrapper() {
   // --- FIX 6: Refactor handleUpvote (Optimistic) ---
   const handleUpvote = async (commentId: number, hasUpvoted: boolean) => {
     // 1. Define the optimistic update function
-    const updateFn = (comment: any) => ({
+    const updateFn = (comment: CommentType) => ({
       ...comment,
       upvotes: hasUpvoted ? comment.upvotes - 1 : comment.upvotes + 1,
       hasUpvoted: !hasUpvoted,
@@ -248,7 +249,7 @@ export default function PostPageWrapper() {
       console.error(error);
       // 5. On failure, revert state
       alert("Failed to save upvote.");
-      const revertFn = (comment: any) => ({
+      const revertFn = (comment: CommentType) => ({
         ...comment,
         upvotes: hasUpvoted ? comment.upvotes + 1 : comment.upvotes - 1,
         hasUpvoted: hasUpvoted,
@@ -261,7 +262,7 @@ export default function PostPageWrapper() {
 
   const sortedComments = useMemo(() => {
     // ... (your code is perfect, no change)
-    const sortRec = (list: any[]): any[] => {
+    const sortRec = (list: CommentType[]): CommentType[] => {
       if (!Array.isArray(list)) return [];
       const arr = [...list];
       if (sortType === "most-upvoted")
@@ -283,7 +284,7 @@ export default function PostPageWrapper() {
 
   const totalComments = useMemo(() => {
     // ... (your code is perfect, no change)
-    const count = (list: any[]): number => {
+    const count = (list: CommentType[]): number => {
       if (!Array.isArray(list)) return 0;
       return list.length + list.reduce((s, c) => s + count(c.replies || []), 0);
     };
@@ -294,7 +295,7 @@ export default function PostPageWrapper() {
 
   // Wrap this in useCallback so useMemo doesn't re-run unnecessarily
   const findCommentById = useCallback(
-    (id: string | number, commentList: any[]): any | null => {
+    (id: string | number, commentList: CommentType[]): CommentType | null => {
       for (const comment of commentList) {
         if (comment.id === id) return comment;
         if (comment.replies) {
