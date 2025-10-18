@@ -14,6 +14,7 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+const HOST = '0.0.0.0';
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
@@ -47,6 +48,6 @@ app.use('/api/auth', authRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
