@@ -2,8 +2,17 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* New Professional Palette */
 :root{
+  --bg: 15 23 42;
+  --surface: 30 41 59;
+  --border: 51 65 85;
+  --text: 226 232 240;
+  --muted-text: 148 163 184;
+  --accent: 65, 55, 255;
+  --radius: 0.75rem;
+  --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+.dark{
   --bg: 248 250 252;
   --surface: 255 255 255;
   --border: 226 232 240;
@@ -14,16 +23,6 @@
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
-.dark{
-  --bg: 15 23 42;
-  --surface: 30 41 59;
-  --border: 51 65 85;
-  --text: 226 232 240;
-  --muted-text: 148 163 184;
-  --accent: 99 102 241;
-  --radius: 0.75rem;
-  --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
 
 html,body {
   height:100%;
@@ -53,7 +52,7 @@ textarea, input, select {
 }
 textarea:focus, input:focus, select:focus {
   outline: none;
-  border-color: rgb(var(--accent));
+  border-color: rgba(var(--accent), 0.5);
   box-shadow: 0 0 0 3px rgba(var(--accent), 0.15);
 }
 textarea:hover, input:hover, select:hover {
@@ -69,9 +68,10 @@ textarea:hover, input:hover, select:hover {
   border-radius: 0.5rem;
   font-weight: 600;
   transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+  cursor: pointer;
 }
 .btn-accent:hover {
-  background-color: rgba(var(--accent), 0.9);
+  background-color: rgb(87, 79, 255);
 }
 .btn-accent:disabled {
   opacity: 0.5;
@@ -104,13 +104,41 @@ textarea:hover, input:hover, select:hover {
   background-color: rgb(var(--accent));
 }
 
-.thread-line::before {
-  content: '';
-  position: absolute;
-  left: 19px; /* Adjust to center on the avatar */
-  top: 48px;  /* Start below the avatar */
-  bottom: 0;
-  width: 2px;
-  background-color: rgba(var(--border));
-  opacity: 0.8;
+button:focus-visible, [role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--accent), 0.4);
+}
+@keyframes threadGrow {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8);
+    transform-origin: top;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+.animate-threadGrow {
+  animation: threadGrow 1s ease-in-out forwards;
+}
+
+.theme-toggler {
+  cursor: pointer;
+}
+
+.theme-toggler:hover {
+  color: rgb(var(--accent));
+}
+
+.actionbtn:hover {
+  background: rgba(var(--border),0.5);
+  color: rgb(var(--text)); 
+  transition: color 200;
+}
+
+.actionbtn2:hover {
+  color: rgb(87, 79, 255);
 }

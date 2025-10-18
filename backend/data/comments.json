@@ -3998,5 +3998,101 @@
     "upvotes": 54,
     "created_at": "2024-07-05T05:07:49.295Z",
     "user_id": "67240c02-4120-4b9e-8a53-46deb231f1c2"
+  },
+  {
+    "id": 501,
+    "parent_id": null,
+    "text": "Completely agree with this. My JSX becomes unreadable with a dozen utility classes on a single element. Separation of concerns is a principle for a reason.",
+    "upvotes": 88,
+    "created_at": "2025-10-15T10:00:00.000Z",
+    "user_id": "d9b5c4a2-6224-43c1-ac0e-fac037a68f24"
+  },
+  {
+    "id": 502,
+    "parent_id": 501,
+    "text": "But aren't you just moving the complexity? Instead of a long `className`, you have a separate CSS file with a class name you have to invent, like `.card-with-padding-and-blue-border`. With Tailwind, the styles are co-located with the markup.",
+    "upvotes": 120,
+    "created_at": "2025-10-15T11:30:00.000Z",
+    "user_id": "cc0588de-70fd-4c20-af6e-297a1a2b94cd"
+  },
+  {
+    "id": 503,
+    "parent_id": 502,
+    "text": "That's what methodologies like BEM are for. It's descriptive and keeps the HTML clean. A class like `card__header--active` tells me more about the component's structure than `p-4 bg-blue-500 font-bold`.",
+    "upvotes": 65,
+    "created_at": "2025-10-15T14:05:00.000Z",
+    "user_id": "9e92ed55-e15c-4cb1-b5ee-1e0278f38b35"
+  },
+  {
+    "id": 504,
+    "parent_id": null,
+    "text": "The post misses the point. It's not like inline styles at all. Inline styles are arbitrary 'magic numbers'. Tailwind uses a pre-defined design system from a config file. You can't just use `p-[13px]`, you use `p-3` or `p-4`. This enforces consistency across the entire app.",
+    "upvotes": 152,
+    "created_at": "2025-10-16T09:15:00.000Z",
+    "user_id": "b11dc688-a097-4f57-9da8-6d79dc46b69e"
+  },
+  {
+    "id": 505,
+    "parent_id": 504,
+    "text": "But you actually *can* use arbitrary values like `w-[32.5rem]` in the latest versions. Doesn't that defeat the purpose of the design system?",
+    "upvotes": 30,
+    "created_at": "2025-10-16T10:00:00.000Z",
+    "user_id": "966869ae-24d8-4422-9797-41a93a9ce0b5"
+  },
+  {
+    "id": 506,
+    "parent_id": 505,
+    "text": "That's just an escape hatch for the rare cases you need it. The convention is to stick to the theme. It's a tool, and you can still use it improperly. The default path encourages consistency, which is the main benefit.",
+    "upvotes": 75,
+    "created_at": "2025-10-16T12:45:00.000Z",
+    "user_id": "b11dc688-a097-4f57-9da8-6d79dc46b69e"
+  },
+  {
+    "id": 507,
+    "parent_id": null,
+    "text": "I was skeptical at first, but the development speed is undeniable. I don't have to switch contexts between my JS/HTML file and a separate CSS file. It's all right there. Plus, no more wasting time thinking of class names!",
+    "upvotes": 210,
+    "created_at": "2025-10-17T08:00:00.000Z",
+    "user_id": "2c612e74-1dad-4f91-8d45-b233585e12b1"
+  },
+  {
+    "id": 508,
+    "parent_id": 507,
+    "text": "This is the key point for me. With React or Vue, you abstract the messy class strings into a component like `<Button primary>Click Me</Button>`. You only write the utilities once inside that component file, and then you get a clean, reusable API.",
+    "upvotes": 95,
+    "created_at": "2025-10-17T09:30:00.000Z",
+    "user_id": "aae37746-cefc-4338-bb21-6981b40717dd"
+  },
+  {
+    "id": 509,
+    "parent_id": 508,
+    "text": "Exactly! The argument about unreadable JSX only holds if you're not using components. And if you aren't using components in modern web dev, you have bigger problems than your CSS methodology.",
+    "upvotes": 133,
+    "created_at": "2025-10-17T11:00:00.000Z",
+    "user_id": "2c612e74-1dad-4f91-8d45-b233585e12b1"
+  },
+  {
+    "id": 510,
+    "parent_id": null,
+    "text": "Has anyone tried using Tailwind's `@apply` directive to group utilities into a custom class? Seems like it could be a good middle-ground to keep the HTML cleaner.",
+    "upvotes": 42,
+    "created_at": "2025-10-17T13:00:00.000Z",
+    "user_id": "454cca7e-ae1f-4c55-9003-616237c18ba2"
+  },
+  {
+    "id": 511,
+    "parent_id": 510,
+    "text": "The Tailwind team generally advises against this as a common practice. It can recreate the problems utility classes were meant to solve (like CSS bundle size, naming conflicts, etc.). It's best used sparingly for small, repeated UI patterns.",
+    "upvotes": 55,
+    "created_at": "2025-10-17T15:20:00.000Z",
+    "user_id": "0c7291b6-21fc-4a88-b945-5be18f3417a4"
+  },
+  {
+    "id": 512,
+    "parent_id": 510,
+    "text": "Yeah, I tried it, but it felt like I was just writing CSS with extra steps. The real power of Tailwind is using the utilities directly in the markup, especially with a good editor extension for autocomplete.",
+    "upvotes": 28,
+    "created_at": "2025-10-17T16:10:00.000Z",
+    "user_id": "d9b5c4a2-6224-43c1-ac0e-fac037a68f24"
   }
 ]

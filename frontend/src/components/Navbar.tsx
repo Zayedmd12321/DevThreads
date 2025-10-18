@@ -13,11 +13,12 @@ interface CurrentUser {
 }
 
 interface NavbarProps {
-  currentUser: CurrentUser | null; // Accept a user object which can be null
+  currentUser: CurrentUser | null;
   onLogout: () => void;
+  loading: boolean;
 }
 
-export default function Navbar({ currentUser, onLogout }: NavbarProps) {
+export default function Navbar({ currentUser, onLogout, loading }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -33,32 +34,32 @@ export default function Navbar({ currentUser, onLogout }: NavbarProps) {
               <div className="text-xs text-muted">Professional Developer Discussions</div>
             </div>
           </div>
+          {!loading &&
+            <div className="flex items-center gap-2 sm:gap-4">
+              {currentUser ? (
+                <>
+                  <div className="hidden md:block text-sm text-muted px-3 py-1.5 rounded-md bg-[rgba(var(--border),0.5)]">{currentUser.id}</div>
+                  <Image
+                    src={currentUser.avatar}
+                    alt={currentUser.name || "User Avatar"}
+                    width={36}
+                    height={36}
+                    className="rounded-full cursor-pointer"
+                  />
+                </>
+              ) : (
+                <div className="hidden md:block text-sm text-muted px-3 py-1.5 rounded-md bg-[rgba(var(--border),0.5)]">Not signed in</div>
+              )}
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            {currentUser ? (
-              <>
-                <div className="hidden md:block text-sm text-muted px-3 py-1.5 rounded-md bg-[rgba(var(--border),0.5)]">{currentUser.id}</div>
-                <Image 
-                  src={currentUser.avatar} 
-                  alt={currentUser.name || "User Avatar"} 
-                  width={36} 
-                  height={36} 
-                  className="rounded-full"
-                />
-              </>
-            ) : (
-              <div className="hidden md:block text-sm text-muted px-3 py-1.5 rounded-md bg-[rgba(var(--border),0.5)]">Not signed in</div>
-            )}
-            
-            <button onClick={toggleTheme} aria-label="Toggle theme" className="p-2 h-10 w-10 flex items-center justify-center rounded-full transition-smooth hover:bg-[rgba(var(--border),0.5)] text-muted">
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+              <button onClick={toggleTheme} aria-label="Toggle theme" className="p-2 h-10 w-10 flex items-center justify-center rounded-full transition-smooth hover:bg-[rgba(var(--border),0.5)] text-muted">
+                {theme === "dark" ? <Sun size={18} className="theme-toggler" /> : <Moon size={18} className="theme-toggler" />}
+              </button>
 
-            <button onClick={onLogout} className="flex items-center gap-2 px-3 py-2 rounded-md btn-accent text-sm">
-              <LogOut size={16}/>
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
+              <button onClick={onLogout} className="flex items-center gap-2 px-3 py-2 rounded-md btn-accent text-sm">
+                <LogOut size={16} />
+                <span className="hidden sm:inline">Log out</span>
+              </button>
+            </div>}
         </div>
       </div>
     </header>

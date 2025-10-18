@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = 'http://10.145.228.129:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function LoginForm() {
   const [id, setId] = useState("");
@@ -54,7 +54,7 @@ export default function LoginForm() {
           <input
             id="userId"
             type="text"
-            placeholder="e.g., rohit.shah or anita.p."
+            placeholder="Enter any Id from users.json"
             value={id}
             onChange={(e) => setId(e.target.value)}
             className="w-full"
@@ -63,6 +63,7 @@ export default function LoginForm() {
         </div>
 
         {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+        <p className="text-[rgb(var(--muted-text))]"> For Admin Access user id is <b>admin</b> </p>
 
         <button
           type="submit"

@@ -9,10 +9,11 @@ interface CommentsSectionProps {
   comments: any[];
   users: any[];
   userId: string;
-  onAddReply: (parentId: number, text: string) => void;
+  onAddReply: (parentId: number | null, text: string) => void; // Corrected type
   onDelete: (id: number) => void;
   onUpvote: (commentId: number, hasUpvoted: boolean) => void;
   currentUser: any;
+  onViewThread: (commentId: number) => void;
 }
 
 export default function CommentsSection({
@@ -25,7 +26,8 @@ export default function CommentsSection({
   onAddReply,
   onDelete,
   onUpvote,
-  currentUser
+  currentUser,
+  onViewThread,
 }: CommentsSectionProps) {
   return (
     <div className="card p-5">
@@ -35,13 +37,14 @@ export default function CommentsSection({
           <select 
             value={sortType} 
             onChange={(e) => setSortType(e.target.value)} 
-            className="cursor-pointer appearance-none rounded-md py-2 pl-4 pr-10 text-sm font-medium bg-[rgb(var(--surface))] border border-[rgb(var(--border))] transition-colors hover:bg-[rgba(var(--border),0.5)]"
+            className="cursor-pointer appearance-none rounded-md py-2 text-xs font-medium bg-[rgb(var(--surface))] border border-[rgb(var(--border))] transition-colors hover:bg-[rgba(var(--border),0.5)]"
+            style={{paddingRight: "1.2rem"}}
           >
-            <option value="newest">Newest First</option>
-            <option value="most-upvoted">Most Upvoted</option>
-            <option value="oldest">Oldest First</option>
+            <option value="newest">Recents</option>
+            <option value="most-upvoted">Popular</option>
+            <option value="oldest">Oldest</option>
           </select>
-          <ChevronDown size={18} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted" />
+          <ChevronDown size={18} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted translate-x-2" />
         </div>
       </div>
 
@@ -55,6 +58,7 @@ export default function CommentsSection({
             onAddReply={onAddReply} 
             onDelete={onDelete} 
             onUpvote={onUpvote} 
+            onViewThread={onViewThread}
           />
         ))}
       </div>
